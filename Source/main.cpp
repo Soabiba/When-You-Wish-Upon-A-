@@ -2,25 +2,24 @@
 #include "Level.h"
 
 int main() {
-    // Initialize the window
-    const int screenWidth = 800;
-    const int screenHeight = 450;
-    InitWindow(screenWidth, screenHeight, "Star Chaser Simulation");
+    InitWindow(Grid::gridSize * Grid::cellSize, Grid::gridSize * Grid::cellSize, "Grid World");
+    SetTargetFPS(60);
 
-    SetTargetFPS(60); // Set our game to run at 60 frames-per-second
+    Grid grid; // Create an instance of Grid
 
-    // Main game loop
-    while (!WindowShouldClose()) { // Detect window close button or ESC key
+    while (!WindowShouldClose()) {
+        
+        grid.Update();
+
         BeginDrawing();
-
         ClearBackground(RAYWHITE);
 
-        // Your drawing code here
+        grid.Draw(); // Draw the grid
 
         EndDrawing();
     }
 
-    CloseWindow(); // Close window and OpenGL context
+    CloseWindow();
 
     return 0;
 }
