@@ -1,6 +1,5 @@
 #include "Level.h"
 
-
 Grid::Grid() {
     Initialize();
     PlaceEntities();

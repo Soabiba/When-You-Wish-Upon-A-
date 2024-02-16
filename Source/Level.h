@@ -35,6 +35,7 @@ public:
 
     void Draw();
 };
+
 struct Cell {
     bool blocked;
 };
