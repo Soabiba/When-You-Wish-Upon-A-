@@ -93,6 +93,7 @@ void Grid::PlaceEntities() {
             placedFS = true;
         }
     }
+
 }
 
 Grid::~Grid() {

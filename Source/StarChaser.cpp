@@ -1,10 +1,5 @@
 #include "Level.h"
 
-// Constructor
-Starchaser::Starchaser(Vector2 pos) : Entity(pos), stamina(100), state(State::SearchingForStar), currentPosition(pos), targetPosition({ 0, 0 }), carryingStar(false) {
-    
-}
-
 // Update method - the core FSM logic
 void Starchaser::Update(Grid& grid) {
     switch (state) {
@@ -34,11 +29,14 @@ void Starchaser::Update(Grid& grid) {
 // Stub for the Draw method
 void Starchaser::Draw() {
     
-    DrawCircleV(currentPosition, 10, BLUE); 
+    int pixelX = static_cast<int>(position.x) * Grid::cellSize + Grid::cellSize / 2;
+    int pixelY = static_cast<int>(position.y) * Grid::cellSize + Grid::cellSize / 2;
+
+    DrawCircle(pixelX, pixelY, Grid::cellSize / 4, RED);
 }
 
 // Stub for the FindPath method using A* pathfinding
-void Starchaser::FindPath(Vector2 destination, Grid& grid) {
+void Starchaser::FindPath(Vector2 /*destination*/, Grid& /*grid*/) {
     
 }
 
@@ -50,19 +48,19 @@ void Starchaser::MoveAlongPath() {
 }
 
 // FSM state methods
-void Starchaser::SearchForStar(Grid& grid) {
+void Starchaser::SearchForStar(Grid& /*grid*/) {
     
 }
 
-void Starchaser::DeliverStar(Grid& grid) {
+void Starchaser::DeliverStar(Grid& /*grid*/) {
     // Placeholder: Implement logic to deliver the star to the trading post
 }
 
-void Starchaser::SellStar(Grid& grid) {
+void Starchaser::SellStar(Grid& /*grid*/) {
     // Placeholder: Implement logic for selling the star at the trading post
 }
 
-void Starchaser::Rest(Grid& grid) {
+void Starchaser::Rest(Grid& /*grid*/) {
     // Placeholder: Implement logic for resting (e.g., moving to the spaceship)
 }
 
@@ -72,11 +70,12 @@ float Starchaser::Heuristic(Vector2 a, Vector2 b) {
     return Vector2Distance(a, b); 
 }
 
-std::vector<Vector2> Starchaser::GetNeighbors(Vector2 node, Grid& grid) {
+std::vector<Vector2> Starchaser::GetNeighbors(Vector2 /*node*/, Grid& /*grid*/) {
     // Placeholder: Return a list of walkable neighbor tiles for the given node
+    return std::vector<Vector2>();
 }
 
-void Starchaser::ReconstructPath(Vector2 current) {
+void Starchaser::ReconstructPath(Vector2 /*current*/) {
     // Placeholder: Reconstruct the path from the `cameFrom` map
 }
 

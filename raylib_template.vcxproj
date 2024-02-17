@@ -96,7 +96,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\Grid.cpp" />
-    <ClCompile Include="Source\Level.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\StarChaser.cpp" />
     <ClCompile Include="Source\STF.cpp" />
