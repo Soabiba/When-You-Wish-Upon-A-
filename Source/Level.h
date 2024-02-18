@@ -1,8 +1,11 @@
 #pragma once
 #include"raylib.h"
 #include "raymath.h"
+#include <cmath>
+#include <queue>
 #include<vector>
 #include <map>
+#include <unordered_map>
 
 const int screenWidth = 800;
 const int screenHeight = 600;
@@ -37,6 +40,8 @@ public:
     void Draw();
 };
 
+class StarChaser;
+
 struct Cell {
     bool blocked;
 };
@@ -47,9 +52,14 @@ public:
     static const int cellSize = 40;
     Cell cells[gridSize][gridSize];
 
+    Vector2 GetFallenStarPosition();
+    Vector2 GetTradingPostPosition();
+    Vector2 GetSpaceshipPosition();
+
     Spaceship* spaceship; // Pointer to a Spaceship object
     TradingPost* tradingPost;
     FallenStar* fallenStar;
+    StarChaser* starChaser;
 
     void PlaceEntities();
 
@@ -62,65 +72,35 @@ public:
     void ToggleCell(int x, int y); // For toggling cell state
 };
 
-class Entity {
-public:
-    Vector2 position; 
-
-    Entity(Vector2 pos) : position(pos) {}
-};
-
-enum class State {
+enum StarChaserState {
     SearchingForStar,
+    CarryingStar,
     DeliveringStar,
-    SellingStar,
     Resting
 };
 
-class Starchaser : public Entity {
+class StarChaser {
 public:
-    Starchaser(Vector2 pos): Entity(pos),
-        stamina(100),
-        state(State::SearchingForStar),
-        currentPosition({ 0, 0 }), 
-        targetPosition({ 0, 0 }), 
-        spaceshipPosition({ 0, 0 }), 
-        starPosition({ 0, 0 }), 
-        tradingPostPosition({ 0, 0 }), 
-        carryingStar(false) { 
-        // Constructor body
-    }
+    Vector2 position = { 0, 0 }; // Default position
+    float stamina = 100.0f; // Default stamina value
+    StarChaserState state = SearchingForStar; // Default state
+    Vector2 starPosition = { 0, 0 }; // Default position of the Fallen Star
+    Vector2 tradingPostPosition = { 0, 0 }; // Default position of the Trading Post
+    Vector2 spaceshipPosition = { 0, 0 }; // Default position of the Spaceship
 
-    void Update(Grid& grid); // The grid is passed for pathfinding and interaction
+    StarChaser(Vector2 pos, float initialStamina, Vector2 starPos, Vector2 tradingPostPos, Vector2 spaceshipPos)
+        : grid(nullptr), position(pos), stamina(initialStamina), starPosition(starPos), tradingPostPosition(tradingPostPos), spaceshipPosition(spaceshipPos), state(SearchingForStar) {}
+
+    StarChaser(Grid* grid);
+    void Update();
+
     void Draw();
-    void FindPath(Vector2 destination, Grid& grid); // For A* pathfinding
-    void MoveAlongPath(); // Moves the Starchaser along the calculated path
+    void DeliverStar();
+    void SearchForStar();
+    void MoveToDestination();
+    void Rest();
+    // Additional methods for StarChaser behavior will go here
 
 private:
-    int stamina;
-    State state;
-    std::vector<Vector2> path;
-    Vector2 starPosition;
-    Vector2 tradingPostPosition;
-    Vector2 spaceshipPosition;
-
-    // A* pathfinding related variables
-    std::map<Vector2, float> gCost; // Cost from start to current node
-    std::map<Vector2, Vector2> cameFrom; // Map to reconstruct path
-    Vector2 currentPosition; // Current position on the grid
-    Vector2 targetPosition; // Current target position on the grid
-    bool carryingStar = false; // Is the Starchaser currently carrying the star?
-
-    // FSM methods
-    void SearchForStar(Grid& grid);
-    void DeliverStar(Grid& grid);
-    void SellStar(Grid& grid);
-    void Rest(Grid& grid);
-
-    // Helper methods
-    float Heuristic(Vector2 a, Vector2 b); // Heuristic function for A*
-    std::vector<Vector2> GetNeighbors(Vector2 node, Grid& grid); // Get neighbors for pathfinding
-    void ReconstructPath(Vector2 current); // Reconstruct the path from the cameFrom map
-    void ReduceStamina(); // Method to reduce stamina as the Starchaser moves
-    void DropStarIfExhausted(); // Drops the star if stamina reaches zero
-    void RestIfNeeded(); // Go to rest if stamina is low or star is delivered
+    Grid* grid;
 };

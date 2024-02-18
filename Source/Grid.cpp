@@ -42,7 +42,10 @@ void Grid::Draw() {
     if (fallenStar != nullptr) {
         fallenStar->Draw();
     }
-
+    
+    if (starChaser != nullptr) {
+        starChaser->Draw();
+    }
     // Debug: Display the spaceship's position on the screen
     /*char positionText[128];
     sprintf_s(positionText, "Spaceship at: %d, %d",
@@ -58,43 +61,48 @@ void Grid::ToggleCell(int x, int y) {
 }
 
 void Grid::PlaceEntities() {
-    bool placed = false;
-    while (!placed) {
-        int x = GetRandomValue(0, gridSize - 1);
-        int y = GetRandomValue(0, gridSize - 1);
-        if (!cells[x][y].blocked) {
-            // Store grid coordinates directly
-            Vector2 gridPosition = { static_cast<float>(x), static_cast<float>(y) };
-            spaceship = new Spaceship(gridPosition); // Use grid coords
-            placed = true;
+    std::vector<Vector2> occupiedPositions;
+
+    auto isPositionOccupied = [&occupiedPositions](const Vector2& position) -> bool {
+        for (const auto& occupiedPosition : occupiedPositions) {
+            if (occupiedPosition.x == position.x && occupiedPosition.y == position.y) {
+                return true;
+            }
         }
-    }
+        return false;
+        };
+
+    // Lambda function to place an entity on the grid
+    auto placeEntity = [this, &occupiedPositions, &isPositionOccupied](auto** entity, auto constructor) {
+        bool placed = false;
+        while (!placed) {
+            int x = GetRandomValue(0, gridSize - 1);
+            int y = GetRandomValue(0, gridSize - 1);
+            Vector2 position = { static_cast<float>(x), static_cast<float>(y) };
+            if (!cells[x][y].blocked && !isPositionOccupied(position)) {
+                *entity = constructor(position); // Use the constructor passed as a parameter
+                occupiedPositions.push_back(position);
+                placed = true;
+            }
+        }
+        };
+
+    // Place Spaceship
+    placeEntity(&spaceship, [this](Vector2 pos) { return new Spaceship(pos); });
 
     // Place Trading Post
-    bool placedTP = false;
-    while (!placedTP) {
-        int x = GetRandomValue(0, gridSize - 1);
-        int y = GetRandomValue(0, gridSize - 1);
-        if (!cells[x][y].blocked) {
-            Vector2 position = { static_cast<float>(x), static_cast<float>(y) };
-            tradingPost = new TradingPost(position);
-            placedTP = true;
-        }
-    }
+    placeEntity(&tradingPost, [this](Vector2 pos) { return new TradingPost(pos); });
 
     // Place Fallen Star
-    bool placedFS = false;
-    while (!placedFS) {
-        int x = GetRandomValue(0, gridSize - 1);
-        int y = GetRandomValue(0, gridSize - 1);
-        if (!cells[x][y].blocked && !(tradingPost->position.x == x && tradingPost->position.y == y)) {
-            Vector2 position = { static_cast<float>(x), static_cast<float>(y) };
-            fallenStar = new FallenStar(position);
-            placedFS = true;
-        }
-    }
+    placeEntity(&fallenStar, [this](Vector2 pos) { return new FallenStar(pos); });
 
+    // Place StarChaser
+    Vector2 starChaserPosition = { static_cast<float>(GetRandomValue(0, gridSize - 1)), static_cast<float>(GetRandomValue(0, gridSize - 1)) };
+
+    // Instantiate StarChaser with positions of other entities
+    starChaser = new StarChaser(starChaserPosition, 100.0f, fallenStar->position, tradingPost->position, spaceship->position);
 }
+
 
 Grid::~Grid() {
     delete spaceship; // Free the memory allocated for the spaceship
@@ -103,4 +111,18 @@ Grid::~Grid() {
     tradingPost = nullptr;
     delete fallenStar;
     fallenStar = nullptr;
+    delete starChaser;
+    starChaser = nullptr;
+}
+
+Vector2 Grid::GetFallenStarPosition() {
+    return fallenStar->position;
+}
+
+Vector2 Grid::GetTradingPostPosition() {
+    return tradingPost->position;
+}
+
+Vector2 Grid::GetSpaceshipPosition() {
+    return spaceship->position;
 }

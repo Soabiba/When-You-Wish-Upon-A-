@@ -1,92 +1,53 @@
 #include "Level.h"
 
-// Update method - the core FSM logic
-void Starchaser::Update(Grid& grid) {
+void StarChaser::Update() {
+    starPosition = grid->GetFallenStarPosition();
+    tradingPostPosition = grid->GetTradingPostPosition();
+    spaceshipPosition = grid->GetSpaceshipPosition();
+
     switch (state) {
-    case State::SearchingForStar:
-        SearchForStar(grid);
+    case SearchingForStar:
+        SearchForStar();
         break;
-    case State::DeliveringStar:
-        DeliverStar(grid);
+    case CarryingStar:
+        MoveToDestination();
         break;
-    case State::SellingStar:
-        SellStar(grid);
+    case DeliveringStar:
+        DeliverStar();
         break;
-    case State::Resting:
-        Rest(grid);
+    case Resting:
+        Rest();
         break;
     }
-
-    // Handle moving along the path if one exists
-    if (!path.empty()) {
-        MoveAlongPath();
-    }
-
-    // Check for stamina and potentially drop the star or rest
-    RestIfNeeded();
 }
 
-// Stub for the Draw method
-void Starchaser::Draw() {
-    
+void StarChaser::Draw() {
     int pixelX = static_cast<int>(position.x) * Grid::cellSize + Grid::cellSize / 2;
     int pixelY = static_cast<int>(position.y) * Grid::cellSize + Grid::cellSize / 2;
 
-    DrawCircle(pixelX, pixelY, Grid::cellSize / 4, RED);
+    DrawCircle(pixelX, pixelY, Grid::cellSize / 4, PURPLE);
 }
 
-// Stub for the FindPath method using A* pathfinding
-void Starchaser::FindPath(Vector2 /*destination*/, Grid& /*grid*/) {
-    
+void StarChaser::DeliverStar() {
+    // Example logic for searching for the star
+    // This might involve checking the distance to the starPosition and moving towards it
+    // or updating the state if the star is reached.
 }
 
-// Stub for the MoveAlongPath method
-void Starchaser::MoveAlongPath() {
-    
-    ReduceStamina();
-    
+void StarChaser::SearchForStar() {
+    // Example logic for searching for the star
+    // This might involve checking the distance to the starPosition and moving towards it
+    // or updating the state if the star is reached.
 }
 
-// FSM state methods
-void Starchaser::SearchForStar(Grid& /*grid*/) {
-    
+void StarChaser::MoveToDestination() {
+    // Example logic for searching for the star
+    // This might involve checking the distance to the starPosition and moving towards it
+    // or updating the state if the star is reached.
 }
 
-void Starchaser::DeliverStar(Grid& /*grid*/) {
-    // Placeholder: Implement logic to deliver the star to the trading post
-}
-
-void Starchaser::SellStar(Grid& /*grid*/) {
-    // Placeholder: Implement logic for selling the star at the trading post
-}
-
-void Starchaser::Rest(Grid& /*grid*/) {
-    // Placeholder: Implement logic for resting (e.g., moving to the spaceship)
-}
-
-// Helper methods
-float Starchaser::Heuristic(Vector2 a, Vector2 b) {
-    
-    return Vector2Distance(a, b); 
-}
-
-std::vector<Vector2> Starchaser::GetNeighbors(Vector2 /*node*/, Grid& /*grid*/) {
-    // Placeholder: Return a list of walkable neighbor tiles for the given node
-    return std::vector<Vector2>();
-}
-
-void Starchaser::ReconstructPath(Vector2 /*current*/) {
-    // Placeholder: Reconstruct the path from the `cameFrom` map
-}
-
-void Starchaser::ReduceStamina() {
-    // Placeholder: Reduce stamina and handle exhaustion
-}
-
-void Starchaser::DropStarIfExhausted() {
-    // Placeholder: Drop the star if stamina reaches zero
-}
-
-void Starchaser::RestIfNeeded() {
-    // Placeholder: Check if the Starchaser needs to rest and update state accordingly
+void StarChaser::Rest() {
+    // Example logic for searching for the star
+    // This might involve checking the distance to the starPosition and moving towards it
+    // or updating the state if the star is reached.
 }
