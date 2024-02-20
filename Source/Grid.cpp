@@ -51,7 +51,7 @@ void Grid::Draw() {
     sprintf_s(positionText, "Spaceship at: %d, %d",
         static_cast<int>(spaceship->position.x),
         static_cast<int>(spaceship->position.y));
-    DrawText(positionText, 10, 10, 20, RED); // Adjust position and size as needed*/
+    DrawText(positionText, 10, 10, 20, RED); */
 }
 
 void Grid::ToggleCell(int x, int y) {
@@ -72,14 +72,20 @@ void Grid::PlaceEntities() {
         return false;
         };
 
+    auto isPositionBlocked = [this](const Vector2& position) -> bool {
+        int x = static_cast<int>(position.x);
+        int y = static_cast<int>(position.y);
+        return cells[x][y].blocked;
+        };
+
     // Lambda function to place an entity on the grid
-    auto placeEntity = [this, &occupiedPositions, &isPositionOccupied](auto** entity, auto constructor) {
+    auto placeEntity = [this, &occupiedPositions, &isPositionOccupied, &isPositionBlocked](auto** entity, auto constructor) {
         bool placed = false;
         while (!placed) {
             int x = GetRandomValue(0, gridSize - 1);
             int y = GetRandomValue(0, gridSize - 1);
             Vector2 position = { static_cast<float>(x), static_cast<float>(y) };
-            if (!cells[x][y].blocked && !isPositionOccupied(position)) {
+            if (!isPositionBlocked(position) && !isPositionOccupied(position)) {
                 *entity = constructor(position); // Use the constructor passed as a parameter
                 occupiedPositions.push_back(position);
                 placed = true;
@@ -97,11 +103,9 @@ void Grid::PlaceEntities() {
     placeEntity(&fallenStar, [this](Vector2 pos) { return new FallenStar(pos); });
 
     // Place StarChaser
-    Vector2 starChaserPosition = { static_cast<float>(GetRandomValue(0, gridSize - 1)), static_cast<float>(GetRandomValue(0, gridSize - 1)) };
-
-    // Instantiate StarChaser with positions of other entities
-    starChaser = new StarChaser(starChaserPosition, 100.0f, fallenStar->position, tradingPost->position, spaceship->position);
+    placeEntity(&starChaser, [this](Vector2 pos) { return new StarChaser(pos, 100.0f, fallenStar->position, tradingPost->position, spaceship->position); });
 }
+
 
 
 Grid::~Grid() {
