@@ -55,16 +55,14 @@ public:
     static const int cellSize = 40;
     Cell cells[gridSize][gridSize];
 
-    Spaceship* spaceship; // Pointer to a Spaceship object
-    TradingPost* tradingPost;
-    FallenStar* fallenStar;
-    StarChaser* starChaser;
+    Spaceship* spaceship = nullptr; // Pointer to a Spaceship object
+    TradingPost* tradingPost = nullptr;
+    FallenStar* fallenStar = nullptr;
+    StarChaser* starChaser = nullptr;
 
     Vector2 GetFallenStarPosition();
     Vector2 GetTradingPostPosition();
     Vector2 GetSpaceshipPosition();
-
-   
 
     void PlaceEntities();
 
@@ -122,11 +120,9 @@ public:
     void MoveTowards(Vector2 destination);
 
     StarChaser(Vector2 pos, float initialStamina, Vector2 starPos, Vector2 tradingPostPos, Vector2 spaceshipPos)
-        : grid(nullptr), position(pos), stamina(initialStamina), starPosition(starPos), tradingPostPosition(tradingPostPos), spaceshipPosition(spaceshipPos), state(SearchingForStar) {}
+        : position(pos), stamina(initialStamina), starPosition(starPos), tradingPostPosition(tradingPostPos), spaceshipPosition(spaceshipPos), state(SearchingForStar) {}
 
-    StarChaser(Grid* grid);
-    void Update();
-
+    void Update(Grid& grid);
     void Draw();
     void DeliverStar();
     void SearchForStar();
@@ -134,14 +130,12 @@ public:
     void Rest();
     std::vector<Vector2> currentPath;
 
-    void DropStar();
+    void DropStar(Grid& grid);
 
-    void PickUpStar();
+    void PickUpStar(Grid& grid);
 
 private:
     bool carryingStar = false;
-    // Reference to the grid, if needed
-    Grid* grid;
 };
 
 struct Vector2Compare {

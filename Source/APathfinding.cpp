@@ -7,9 +7,9 @@ bool Vector2Equals(const Vector2& v1, const Vector2& v2, float tolerance) {
 }
 
 std::vector<Vector2> AStarSearch(const Grid& grid, Vector2 start, Vector2 target) {
-    std::map<Vector2, AStarNode, Vector2Compare> allNodes; // Ensure you have a comparator for Vector2 if using it as a key
+    std::map<Vector2, AStarNode, Vector2Compare> allNodes; 
     std::vector<AStarNode*> openSet;
-    std::set<Vector2, Vector2Compare> closedSet; // Ensure you have a comparator for Vector2
+    std::set<Vector2, Vector2Compare> closedSet; 
 
     AStarNode* startNode = &allNodes[start];
     startNode->gCost = 0;

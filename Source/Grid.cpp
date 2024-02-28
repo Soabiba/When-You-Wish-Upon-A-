@@ -108,6 +108,25 @@ void Grid::PlaceEntities() {
 
 
 
+Vector2 Grid::GetFallenStarPosition() {
+    /*if (fallenStar != nullptr) {
+        return fallenStar->position;
+    }
+    else {
+        // Handle the error or return a default position
+        std::cerr << "Error: Attempted to access position of a nonexistent FallenStar." << std::endl;*/
+        return { -1.0f, -1.0f }; // Example default position indicating an error
+    //}
+}
+
+Vector2 Grid::GetTradingPostPosition() {
+    return tradingPost->position;
+}
+
+Vector2 Grid::GetSpaceshipPosition() {
+    return spaceship->position;
+}
+
 Grid::~Grid() {
     delete spaceship; // Free the memory allocated for the spaceship
     spaceship = nullptr; // Set the pointer to nullptr to avoid dangling pointer
@@ -117,16 +136,4 @@ Grid::~Grid() {
     fallenStar = nullptr;
     delete starChaser;
     starChaser = nullptr;
-}
-
-Vector2 Grid::GetFallenStarPosition() {
-    return fallenStar->position;
-}
-
-Vector2 Grid::GetTradingPostPosition() {
-    return tradingPost->position;
-}
-
-Vector2 Grid::GetSpaceshipPosition() {
-    return spaceship->position;
 }

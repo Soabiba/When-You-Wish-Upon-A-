@@ -9,9 +9,7 @@ int main() {
     while (!WindowShouldClose()) {
         
         grid.Update();
-        /*if (grid.spaceship != nullptr && grid.tradingPost != nullptr && grid.fallenStar != nullptr && grid.starChaser != nullptr) {
-            grid.starChaser->Update(); // Or any other method that updates game entities
-        }*/
+        grid.starChaser->Update(grid);
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
