@@ -49,14 +49,51 @@ void Grid::Draw() {
     // Debug: Display the spaceship's position on the screen
     /*char positionText[128];
     sprintf_s(positionText, "Spaceship at: %d, %d",
-        static_cast<int>(spaceship->position.x),
-        static_cast<int>(spaceship->position.y));
+        static_cast<int>(starChaser->position.x),
+        static_cast<int>(starChaser->position.y));
     DrawText(positionText, 10, 10, 20, RED); */
 }
 
 void Grid::ToggleCell(int x, int y) {
-    if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
+    if (x < 0 || x >= gridSize || y < 0 || y >= gridSize) return;
+
+    if (currentMode == ToggleMode) {
         cells[x][y].blocked = !cells[x][y].blocked;
+    }
+}
+
+void Grid::TriggerPathFind(int x, int y) {
+    if (x < 0 || x >= gridSize || y < 0 || y >= gridSize) return;
+
+    if (currentMode == PathFindMode && starChaser != nullptr) {
+        Vector2 target = { static_cast<float>(x), static_cast<float>(y) };
+        starChaser->currentPath = AStarSearch(*this, starChaser->position, target);
+        starChaser->needsPathUpdate = false; // Path is now updated
+    }
+}
+
+void Grid::HandleInput() {
+    // Right mouse button to switch modes
+    if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
+        SwitchMode();
+    }
+
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        Vector2 mousePosition = GetMousePosition();
+        int gridX = static_cast<int>(mousePosition.x) / cellSize;
+        int gridY = static_cast<int>(mousePosition.y) / cellSize;
+
+        if (gridX >= 0 && gridX < gridSize && gridY >= 0 && gridY < gridSize) {
+            // Toggle the cell state
+            cells[gridX][gridY].blocked = !cells[gridX][gridY].blocked;
+
+            // If we have a star chaser and a fallen star on the grid, recalculate the path
+            if (starChaser != nullptr && fallenStar != nullptr) {
+                // Recalculate path from star chaser's current position to the fallen star's position
+                starChaser->currentPath = AStarSearch(*this, starChaser->position, fallenStar->position);
+                starChaser->needsPathUpdate = false;
+            }
+        }
     }
 }
 
@@ -106,17 +143,10 @@ void Grid::PlaceEntities() {
     placeEntity(&starChaser, [this](Vector2 pos) { return new StarChaser(pos, 100.0f, fallenStar->position, tradingPost->position, spaceship->position); });
 }
 
-
-
 Vector2 Grid::GetFallenStarPosition() {
-    /*if (fallenStar != nullptr) {
+    
         return fallenStar->position;
-    }
-    else {
-        // Handle the error or return a default position
-        std::cerr << "Error: Attempted to access position of a nonexistent FallenStar." << std::endl;*/
-        return { -1.0f, -1.0f }; // Example default position indicating an error
-    //}
+    
 }
 
 Vector2 Grid::GetTradingPostPosition() {

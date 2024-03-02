@@ -15,16 +15,18 @@ void StarChaser::Update(Grid& grid) {
             target = grid.GetSpaceshipPosition(); // Corrected
             break;
         }
-        currentPath = AStarSearch(grid, position, target); 
+        currentPath = AStarSearch(grid, position, target); // Assuming AStarSearch accepts Grid by reference or value
         needsPathUpdate = false;
     }
+
+
     // Move along the path if there's a path to follow
     if (!currentPath.empty()) {
         std::cout << "Path size: " << currentPath.size() << std::endl;
         Vector2 nextStep = currentPath.front();
-        MoveTowards(nextStep); 
-        if (Vector2Equals(position, nextStep, 0.001f)) { 
-            currentPath.erase(currentPath.begin()); 
+        MoveTowards(nextStep);
+        if (Vector2Equals(position, nextStep, 0.001f)) {
+            currentPath.erase(currentPath.begin());
 
             if (state == CarryingStar) {
                 stamina -= staminaCostPerStep; // Deduct stamina for carrying the star
@@ -46,7 +48,7 @@ void StarChaser::Update(Grid& grid) {
         break;
     case DeliveringStar:
         if (Vector2Equals(position, grid.GetTradingPostPosition(), 0.001f)) {
-            DeliverStar(); 
+            DeliverStar();
             needsPathUpdate = true;
         }
         break;
@@ -68,22 +70,34 @@ void StarChaser::Draw() {
     int pixelY = static_cast<int>(position.y) * Grid::cellSize + Grid::cellSize / 2;
 
     DrawCircle(pixelX, pixelY, Grid::cellSize / 4, PURPLE);
+
+    if (currentPath.size() > 1) {
+        for (size_t i = 0; i < currentPath.size() - 1; ++i) {
+            Vector2 start = { currentPath[i].x * cellSize + cellSize / 2, currentPath[i].y * cellSize + cellSize / 2 };
+            Vector2 end = { currentPath[i + 1].x * cellSize + cellSize / 2, currentPath[i + 1].y * cellSize + cellSize / 2 };
+            DrawLineV(start, end, GREEN); // Draw line segment of the path
+        }
+    }
 }
 
 void StarChaser::MoveTowards(Vector2 destination) {
-    std::cout << "Moving towards: " << destination.x << ", " << destination.y << std::endl;
-    //std::cout << "Before Move - Position: " << position.x << ", " << position.y << std::endl; // Debug print
-    float stepSize = 1.0f; 
-    Vector2 direction = Vector2Subtract(destination, position);
-    direction = Vector2Normalize(direction);
-    position = Vector2Add(position, Vector2Scale(direction, stepSize));
-    //std::cout << "After Move - Position: " << position.x << ", " << position.y << std::endl; // Debug print
+    float deltaTime = GetFrameTime(); 
 
-    // Clamp the position to the destination to avoid overshooting
-    if (Vector2Distance(position, destination) < stepSize) {
-        position = destination;
+    float speed = 1.0f; // Units per second
+
+    float stepDistance = speed * deltaTime;
+
+    // Calculate direction from current position to destination
+    Vector2 direction = Vector2Normalize(Vector2Subtract(destination, position));
+
+    // Move towards the destination by the smaller of stepDistance or the remaining distance to the destination
+    Vector2 step = Vector2Scale(direction, stepDistance);
+    if (Vector2Length(step) > Vector2Distance(position, destination)) {
+        position = destination; 
     }
-
+    else {
+        position = Vector2Add(position, step); // Move towards the destination
+    }
 }
 
 void StarChaser::DeliverStar() {
@@ -108,8 +122,8 @@ void StarChaser::MoveToDestination(Vector2 destination) {
 
 void StarChaser::Rest() {
     // Logic for resting
-    stamina += 10.0f; 
-    if (stamina >= 100.0f) { 
+    stamina += 10.0f;
+    if (stamina >= 100.0f) {
         stamina = 100.0f;
         state = SearchingForStar; // Return to searching after resting
     }
@@ -128,3 +142,4 @@ void StarChaser::PickUpStar(Grid& grid) {
     carryingStar = true;
     grid.RemoveFallenStar();
 }
+

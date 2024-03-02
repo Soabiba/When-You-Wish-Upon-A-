@@ -7,7 +7,7 @@ int main() {
     Grid grid; // Create an instance of Grid
 
     while (!WindowShouldClose()) {
-        
+        grid.HandleInput();
         grid.Update();
         grid.starChaser->Update(grid);
 
@@ -15,6 +15,7 @@ int main() {
         ClearBackground(RAYWHITE);
 
         grid.Draw(); // Draw the grid
+
 
         EndDrawing();
     }

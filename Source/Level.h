@@ -17,7 +17,7 @@ const int cellSize = 40; // Visual size of each cell in pixels
 
 class Spaceship {
 public:
-    Vector2 position; 
+    Vector2 position;
 
     // Constructor takes a Vector2 for position
     Spaceship(Vector2 pos) : position(pos) {}
@@ -27,7 +27,7 @@ public:
 
 class TradingPost {
 public:
-    Vector2 position; 
+    Vector2 position;
 
     TradingPost(Vector2 pos) : position(pos) {}
 
@@ -36,7 +36,7 @@ public:
 
 class FallenStar {
 public:
-    Vector2 position; 
+    Vector2 position;
 
     FallenStar(Vector2 pos) : position(pos) {}
 
@@ -51,7 +51,7 @@ struct Cell {
 
 class Grid {
 public:
-    static const int gridSize = 10; 
+    static const int gridSize = 10;
     static const int cellSize = 40;
     Cell cells[gridSize][gridSize];
 
@@ -69,10 +69,25 @@ public:
     Grid(); // Constructor
     ~Grid(); // Destructor to clean up the spaceship
 
+    enum Mode {
+        ToggleMode,
+        PathFindMode
+    };
+
     void Initialize();
     void Draw();
     void Update();
     void ToggleCell(int x, int y); // For toggling cell state
+    void HandleInput();
+
+    Mode currentMode = ToggleMode;
+
+    void SwitchMode() {
+        currentMode = (currentMode == ToggleMode) ? PathFindMode : ToggleMode;
+    }
+
+    // New method to trigger pathfinding
+    void TriggerPathFind(int x, int y);
 
     bool IsCellBlocked(Vector2 position) const {
         int x = static_cast<int>(position.x);
@@ -80,7 +95,7 @@ public:
         if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
             return cells[x][y].blocked;
         }
-        return true; // Treat out-of-bounds as blocked
+        return true;  // Treat out-of-bounds as blocked
     }
 
     void DropFallenStarAt(Vector2 position) {
@@ -90,7 +105,7 @@ public:
         else {
             fallenStar = new FallenStar(position);
         }
-      
+
     }
 
     void RemoveFallenStar() {
@@ -150,7 +165,7 @@ struct AStarNode {
     float hCost;
     AStarNode* parent;
 
-    
+
     AStarNode() : position({ 0, 0 }), gCost(INFINITY), hCost(INFINITY), parent(nullptr) {}
     // Constructor with initialization
     AStarNode(Vector2 pos, float g = INFINITY, float h = INFINITY, AStarNode* p = nullptr)
