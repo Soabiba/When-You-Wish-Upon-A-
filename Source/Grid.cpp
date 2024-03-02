@@ -15,11 +15,11 @@ void Grid::Initialize() {
 
 void Grid::Update() {
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            Vector2 mousePos = GetMousePosition();
-            int gridX = static_cast<int>(mousePos.x / Grid::cellSize);
-            int gridY = static_cast<int>(mousePos.y / Grid::cellSize);
-            ToggleCell(gridX, gridY); // Toggle cell state on click
-        }
+        Vector2 mousePos = GetMousePosition();
+        int gridX = static_cast<int>(mousePos.x / Grid::cellSize);
+        int gridY = static_cast<int>(mousePos.y / Grid::cellSize);
+        ToggleCell(gridX, gridY); // Toggle cell state on click
+    }
 }
 
 void Grid::Draw() {
@@ -42,7 +42,7 @@ void Grid::Draw() {
     if (fallenStar != nullptr) {
         fallenStar->Draw();
     }
-    
+
     if (starChaser != nullptr) {
         starChaser->Draw();
     }
@@ -70,6 +70,15 @@ void Grid::TriggerPathFind(int x, int y) {
         starChaser->currentPath = AStarSearch(*this, starChaser->position, target);
         starChaser->needsPathUpdate = false; // Path is now updated
     }
+}
+
+bool Grid::IsCellBlocked(Vector2 position) const {
+    int x = static_cast<int>(position.x);
+    int y = static_cast<int>(position.y);
+    if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
+        return cells[x][y].blocked;
+    }
+    return true;  // Treat out-of-bounds as blocked
 }
 
 void Grid::HandleInput() {
@@ -143,10 +152,20 @@ void Grid::PlaceEntities() {
     placeEntity(&starChaser, [this](Vector2 pos) { return new StarChaser(pos, 100.0f, fallenStar->position, tradingPost->position, spaceship->position); });
 }
 
+void Grid::DropFallenStarAt(Vector2 position) {
+    if (fallenStar != nullptr) {
+        fallenStar->position = position;
+    }
+    else {
+        fallenStar = new FallenStar(position);
+    }
+
+}
+
 Vector2 Grid::GetFallenStarPosition() {
-    
-        return fallenStar->position;
-    
+
+    return fallenStar->position;
+
 }
 
 Vector2 Grid::GetTradingPostPosition() {

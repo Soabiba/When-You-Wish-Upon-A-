@@ -71,7 +71,9 @@ public:
 
     enum Mode {
         ToggleMode,
-        PathFindMode
+        PathFindMode,
+        MoveEntityMode,
+        RemoveEntityMode
     };
 
     void Initialize();
@@ -89,29 +91,14 @@ public:
     // New method to trigger pathfinding
     void TriggerPathFind(int x, int y);
 
-    bool IsCellBlocked(Vector2 position) const {
-        int x = static_cast<int>(position.x);
-        int y = static_cast<int>(position.y);
-        if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
-            return cells[x][y].blocked;
-        }
-        return true;  // Treat out-of-bounds as blocked
-    }
-
-    void DropFallenStarAt(Vector2 position) {
-        if (fallenStar != nullptr) {
-            fallenStar->position = position;
-        }
-        else {
-            fallenStar = new FallenStar(position);
-        }
-
-    }
+    bool IsCellBlocked(Vector2 position) const;
+    void DropFallenStarAt(Vector2 position);
 
     void RemoveFallenStar() {
         delete fallenStar;
         fallenStar = nullptr;
     }
+
 };
 
 enum StarChaserState {

@@ -75,13 +75,13 @@ void StarChaser::Draw() {
         for (size_t i = 0; i < currentPath.size() - 1; ++i) {
             Vector2 start = { currentPath[i].x * cellSize + cellSize / 2, currentPath[i].y * cellSize + cellSize / 2 };
             Vector2 end = { currentPath[i + 1].x * cellSize + cellSize / 2, currentPath[i + 1].y * cellSize + cellSize / 2 };
-            DrawLineV(start, end, GREEN); // Draw line segment of the path
+            DrawLineV(start, end, RED); // Draw line segment of the path
         }
     }
 }
 
 void StarChaser::MoveTowards(Vector2 destination) {
-    float deltaTime = GetFrameTime(); 
+    float deltaTime = GetFrameTime();
 
     float speed = 1.0f; // Units per second
 
@@ -93,7 +93,7 @@ void StarChaser::MoveTowards(Vector2 destination) {
     // Move towards the destination by the smaller of stepDistance or the remaining distance to the destination
     Vector2 step = Vector2Scale(direction, stepDistance);
     if (Vector2Length(step) > Vector2Distance(position, destination)) {
-        position = destination; 
+        position = destination;
     }
     else {
         position = Vector2Add(position, step); // Move towards the destination
@@ -142,4 +142,3 @@ void StarChaser::PickUpStar(Grid& grid) {
     carryingStar = true;
     grid.RemoveFallenStar();
 }
-
