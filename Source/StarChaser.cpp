@@ -6,16 +6,18 @@ void StarChaser::Update(Grid& grid) {
     if (needsPathUpdate) {
         switch (state) {
         case SearchingForStar:
-            target = grid.GetFallenStarPosition(); // Corrected
+            target = grid.GetFallenStarPosition();
+            break;
+        case CarryingStar:
+            target = grid.GetTradingPostPosition();
             break;
         case DeliveringStar:
-            target = grid.GetTradingPostPosition(); // Corrected
             break;
         case Resting:
-            target = grid.GetSpaceshipPosition(); // Corrected
+            target = grid.GetSpaceshipPosition();
             break;
         }
-        currentPath = AStarSearch(grid, position, target); // Assuming AStarSearch accepts Grid by reference or value
+        currentPath = AStarSearch(grid, position, target);
         needsPathUpdate = false;
     }
 
@@ -28,10 +30,12 @@ void StarChaser::Update(Grid& grid) {
         if (Vector2Equals(position, nextStep, 0.001f)) {
             currentPath.erase(currentPath.begin());
 
-            if (state == CarryingStar) {
-                stamina -= staminaCostPerStep; // Deduct stamina for carrying the star
+            if (carryingStar) {
+                stamina -= staminaCostPerStep; // Decrease stamina for each step while carrying
                 if (stamina <= 0) {
-                    DropStar(grid); // Logic to drop the star and change state
+                    DropStar(grid); // Drop the Fallen Star at the current position
+                    state = Resting; // Change state to resting
+                    // Additional logic to move towards the Spaceship can be initiated here
                 }
             }
         }
@@ -47,7 +51,7 @@ void StarChaser::Update(Grid& grid) {
         }
         break;
     case DeliveringStar:
-        if (Vector2Equals(position, grid.GetTradingPostPosition(), 0.001f)) {
+        if (Vector2Equals(position, grid.GetTradingPostPosition(), 0.001f) && state == CarryingStar) {
             DeliverStar();
             needsPathUpdate = true;
         }
@@ -64,21 +68,6 @@ void StarChaser::Update(Grid& grid) {
     }
 }
 
-
-void StarChaser::Draw() {
-    int pixelX = static_cast<int>(position.x) * Grid::cellSize + Grid::cellSize / 2;
-    int pixelY = static_cast<int>(position.y) * Grid::cellSize + Grid::cellSize / 2;
-
-    DrawCircle(pixelX, pixelY, Grid::cellSize / 4, PURPLE);
-
-    if (currentPath.size() > 1) {
-        for (size_t i = 0; i < currentPath.size() - 1; ++i) {
-            Vector2 start = { currentPath[i].x * cellSize + cellSize / 2, currentPath[i].y * cellSize + cellSize / 2 };
-            Vector2 end = { currentPath[i + 1].x * cellSize + cellSize / 2, currentPath[i + 1].y * cellSize + cellSize / 2 };
-            DrawLineV(start, end, RED); // Draw line segment of the path
-        }
-    }
-}
 
 void StarChaser::MoveTowards(Vector2 destination) {
     float deltaTime = GetFrameTime();
@@ -98,9 +87,11 @@ void StarChaser::MoveTowards(Vector2 destination) {
     else {
         position = Vector2Add(position, step); // Move towards the destination
     }
+
 }
 
 void StarChaser::DeliverStar() {
+    carryingStar = false;
     state = Resting;
 }
 
@@ -122,9 +113,9 @@ void StarChaser::MoveToDestination(Vector2 destination) {
 
 void StarChaser::Rest() {
     // Logic for resting
-    stamina += 10.0f;
-    if (stamina >= 100.0f) {
-        stamina = 100.0f;
+    stamina += 1.0f;
+    if (stamina >= 10.0f) {
+        stamina = 10.0f;
         state = SearchingForStar; // Return to searching after resting
     }
 }
@@ -141,4 +132,28 @@ void StarChaser::PickUpStar(Grid& grid) {
     // Update the StarChaser's state to indicate it's now carrying the star
     carryingStar = true;
     grid.RemoveFallenStar();
+    state = CarryingStar; // Change state to indicate the star is being carried.
+    needsPathUpdate = true;
+}
+
+void StarChaser::Draw() {
+    int pixelX = static_cast<int>(position.x) * Grid::cellSize + Grid::cellSize / 2;
+    int pixelY = static_cast<int>(position.y) * Grid::cellSize + Grid::cellSize / 2;
+
+    DrawCircle(pixelX, pixelY, Grid::cellSize / 4, PURPLE);
+
+    if (currentPath.size() > 1) {
+        for (size_t i = 0; i < currentPath.size() - 1; ++i) {
+            Vector2 start = { currentPath[i].x * cellSize + cellSize / 2, currentPath[i].y * cellSize + cellSize / 2 };
+            Vector2 end = { currentPath[i + 1].x * cellSize + cellSize / 2, currentPath[i + 1].y * cellSize + cellSize / 2 };
+            DrawLineV(start, end, RED); // Draw line segment of the path
+        }
+    }
+}
+
+
+void StarChaser::DrawStamina() const {
+    char staminaText[128];
+    sprintf_s(staminaText, "Stamina: %.2f", stamina); // Converts stamina to text
+    DrawText(staminaText, 10, 10, 20, DARKGREEN); // Draws stamina at the top-left corner
 }

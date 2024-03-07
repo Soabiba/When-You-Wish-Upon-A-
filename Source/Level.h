@@ -90,7 +90,7 @@ public:
 
     // New method to trigger pathfinding
     void TriggerPathFind(int x, int y);
-
+    bool IsCellOccupied(Vector2 position) const;
     bool IsCellBlocked(Vector2 position) const;
     void DropFallenStarAt(Vector2 position);
 
@@ -111,8 +111,8 @@ enum StarChaserState {
 class StarChaser {
 public:
     Vector2 position = { 0, 0 }; // Default position
-    float stamina = 100.0f; // Default stamina value
-    float maxStamina = 100.0f; // Adjust as needed
+    float stamina = 10.0f; // Default stamina value
+    float maxStamina = 10.0f; // Adjust as needed
     float staminaCostPerStep = 1.0f; // Adjust as needed
     bool needsPathUpdate = true;
     StarChaserState state = SearchingForStar; // Default state
@@ -126,6 +126,7 @@ public:
 
     void Update(Grid& grid);
     void Draw();
+    void DrawStamina() const;
     void DeliverStar();
     void SearchForStar();
     void MoveToDestination(Vector2 destination);
@@ -145,6 +146,14 @@ struct Vector2Compare {
         return (a.x < b.x) || (!(b.x < a.x) && a.y < b.y);
     }
 };
+
+inline float OctileDistance(Vector2 a, Vector2 b) {
+    float D = 1.0f; // Cost of moving horizontally or vertically
+    float D2 = std::sqrt(2.0f); // Cost of moving diagonally
+    float dx = std::abs(a.x - b.x);
+    float dy = std::abs(a.y - b.y);
+    return D * (dx + dy) + (D2 - 2 * D) * std::min(dx, dy);
+}
 
 struct AStarNode {
     Vector2 position;

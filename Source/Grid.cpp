@@ -45,6 +45,7 @@ void Grid::Draw() {
 
     if (starChaser != nullptr) {
         starChaser->Draw();
+        starChaser->DrawStamina();
     }
     // Debug: Display the spaceship's position on the screen
     /*char positionText[128];
@@ -54,10 +55,20 @@ void Grid::Draw() {
     DrawText(positionText, 10, 10, 20, RED); */
 }
 
+bool Grid::IsCellOccupied(Vector2 position) const {
+    if (spaceship && Vector2Equals(spaceship->position, position, 0.001f)) return true;
+    if (tradingPost && Vector2Equals(tradingPost->position, position, 0.001f)) return true;
+    if (fallenStar && Vector2Equals(fallenStar->position, position, 0.001f)) return true;
+    if (starChaser && Vector2Equals(starChaser->position, position, 0.001f)) return true;
+    return false;
+}
+
 void Grid::ToggleCell(int x, int y) {
     if (x < 0 || x >= gridSize || y < 0 || y >= gridSize) return;
+    Vector2 position = { static_cast<float>(x), static_cast<float>(y) };
 
-    if (currentMode == ToggleMode) {
+    // Prevent toggling a cell to blocked if it's occupied
+    if (currentMode == ToggleMode && !IsCellOccupied(position)) {
         cells[x][y].blocked = !cells[x][y].blocked;
     }
 }

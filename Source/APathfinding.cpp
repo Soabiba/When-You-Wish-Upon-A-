@@ -7,7 +7,7 @@ bool Vector2Equals(const Vector2& v1, const Vector2& v2, float tolerance) {
 }
 
 float Heuristic(Vector2 a, Vector2 b) {
-    return std::abs(a.x - b.x) + std::abs(a.y - b.y);
+    return OctileDistance(a, b);
 }
 
 std::vector<Vector2> AStarSearch(const Grid& grid, Vector2 start, Vector2 target) {
@@ -19,7 +19,7 @@ std::vector<Vector2> AStarSearch(const Grid& grid, Vector2 start, Vector2 target
     AStarNode* startNode = &allNodes[start];
     startNode->position = start;
     startNode->gCost = 0;
-    startNode->hCost = Vector2Distance(start, target);
+    startNode->hCost = OctileDistance(start, target);
     openSet.push_back(startNode);
 
     std::cout << "Initial Open Set Size: " << openSet.size() << ", Closed Set Size: " << closedSet.size() << std::endl;
@@ -39,16 +39,21 @@ std::vector<Vector2> AStarSearch(const Grid& grid, Vector2 start, Vector2 target
 
         for (Vector2 dir : GetNeighborDirections()) {
             Vector2 neighborPos = Vector2Add(currentNode->position, dir);
-            if (!grid.IsCellBlocked(neighborPos) && closedSet.find(neighborPos) == closedSet.end()) {
-                AStarNode& neighborNode = allNodes[neighborPos]; // Access or create the node
-                float tentativeGCost = currentNode->gCost + Vector2Distance(currentNode->position, neighborPos);
-                if (tentativeGCost < neighborNode.gCost) { // Found a better path
-                    neighborNode.parent = currentNode; // Set parent to the current node
-                    neighborNode.gCost = tentativeGCost; // Update gCost
-                    neighborNode.hCost = Heuristic(neighborPos, target); // Update hCost
-                    neighborNode.position = neighborPos; // Ensure the position is set
 
-                    // Add to openSet if not already present
+            // Determine if the move is diagonal or straight
+            bool isDiagonalMove = std::abs(dir.x) == 1 && std::abs(dir.y) == 1;
+            float moveCost = isDiagonalMove ? std::sqrt(2.0f) : 1.0f; // Diagonal moves cost sqrt(2), straight moves cost 1
+
+            if (!grid.IsCellBlocked(neighborPos) && closedSet.find(neighborPos) == closedSet.end()) {
+                AStarNode& neighborNode = allNodes[neighborPos];
+                float tentativeGCost = currentNode->gCost + moveCost * Vector2Distance(currentNode->position, neighborPos);
+
+                if (tentativeGCost < neighborNode.gCost) { // Found a better path
+                    neighborNode.parent = currentNode;
+                    neighborNode.gCost = tentativeGCost;
+                    neighborNode.hCost = Heuristic(neighborPos, target);
+                    neighborNode.position = neighborPos;
+
                     if (std::find(openSet.begin(), openSet.end(), &neighborNode) == openSet.end()) {
                         openSet.push_back(&neighborNode);
                     }
