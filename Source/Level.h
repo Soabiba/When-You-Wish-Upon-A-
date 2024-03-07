@@ -15,6 +15,15 @@ const int screenHeight = 600;
 const int gridSize = 10; // Size of the grid (10x10 for simplicity)
 const int cellSize = 40; // Visual size of each cell in pixels
 
+enum EntityToMove {
+    None,
+    MoveSpaceship,
+    MoveTradingPost,
+    MoveFallenStar
+};
+
+inline EntityToMove entityToMove = None;
+
 class Spaceship {
 public:
     Vector2 position;

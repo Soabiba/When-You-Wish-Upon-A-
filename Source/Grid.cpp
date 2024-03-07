@@ -97,6 +97,8 @@ void Grid::TriggerPathFind(int x, int y) {
         starChaser->currentPath = AStarSearch(*this, starChaser->position, target);
         starChaser->needsPathUpdate = false; // Path is now updated
     }
+
+    
 }
 
 bool Grid::IsCellBlocked(Vector2 position) const {
@@ -109,6 +111,40 @@ bool Grid::IsCellBlocked(Vector2 position) const {
 }
 
 void Grid::HandleInput() {
+    if (IsKeyPressed(KEY_ONE)) {
+        entityToMove = MoveSpaceship;
+    }
+    else if (IsKeyPressed(KEY_TWO)) {
+        entityToMove = MoveTradingPost;
+    }
+    else if (IsKeyPressed(KEY_THREE)) {
+        entityToMove = MoveFallenStar;
+    }
+
+    // Handle placing the selected entity on mouse click
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && currentMode == ToggleMode) {
+        Vector2 mousePosition = GetMousePosition();
+        int gridX = static_cast<int>(mousePosition.x / cellSize);
+        int gridY = static_cast<int>(mousePosition.y / cellSize);
+        Vector2 newLocation = { static_cast<float>(gridX), static_cast<float>(gridY) };
+
+        // Move the selected entity to the new location if it's not blocked
+        if (!IsCellBlocked(newLocation)) {
+            switch (entityToMove) {
+            case MoveSpaceship:
+                if (spaceship) spaceship->position = newLocation;
+                break;
+            case MoveTradingPost:
+                if (tradingPost) tradingPost->position = newLocation;
+                break;
+            case MoveFallenStar:
+                if (fallenStar) fallenStar->position = newLocation;
+                break;
+            }
+            entityToMove = None; // Reset the selection
+        }
+    }
+
     // Handle cell toggling with the left mouse button
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         Vector2 mousePosition = GetMousePosition();
