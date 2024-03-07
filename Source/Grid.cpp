@@ -71,6 +71,10 @@ void Grid::ToggleCell(int x, int y) {
     if (currentMode == ToggleMode && !IsCellOccupied(position)) {
         cells[x][y].blocked = !cells[x][y].blocked;
     }
+
+    if (starChaser != nullptr) {
+        starChaser->needsPathUpdate = true;
+    }
 }
 
 void Grid::TriggerPathFind(int x, int y) {
@@ -95,7 +99,11 @@ bool Grid::IsCellBlocked(Vector2 position) const {
 void Grid::HandleInput() {
     // Right mouse button to switch modes
     if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
+        if (starChaser != nullptr) {
+            starChaser->needsPathUpdate = true;
+        }
         SwitchMode();
+
     }
 
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -160,7 +168,7 @@ void Grid::PlaceEntities() {
     placeEntity(&fallenStar, [this](Vector2 pos) { return new FallenStar(pos); });
 
     // Place StarChaser
-    placeEntity(&starChaser, [this](Vector2 pos) { return new StarChaser(pos, 100.0f, fallenStar->position, tradingPost->position, spaceship->position); });
+    placeEntity(&starChaser, [this](Vector2 pos) { return new StarChaser(pos, 10.0f, fallenStar->position, tradingPost->position, spaceship->position); });
 }
 
 void Grid::DropFallenStarAt(Vector2 position) {
