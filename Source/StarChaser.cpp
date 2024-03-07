@@ -148,8 +148,8 @@ void StarChaser::PickUpStar(Grid& grid) {
 }
 
 void StarChaser::Draw() {
-    int pixelX = static_cast<int>(position.x) * Grid::cellSize + Grid::cellSize / 2;
-    int pixelY = static_cast<int>(position.y) * Grid::cellSize + Grid::cellSize / 2;
+    int pixelX = static_cast<int>(round (position.x)) * Grid::cellSize + Grid::cellSize / 2;
+    int pixelY = static_cast<int>(round (position.y)) * Grid::cellSize + Grid::cellSize / 2;
 
     DrawCircle(pixelX, pixelY, Grid::cellSize / 4, PURPLE);
 
