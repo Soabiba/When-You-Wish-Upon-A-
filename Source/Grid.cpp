@@ -33,7 +33,7 @@ void Grid::Update() {
     }
 
     // Ensure the StarChaser updates based on the recalculated path or its current behavior
-    if (starChaser != nullptr) {
+    if (starChaser != nullptr && currentMode == PathFindMode) {
         starChaser->Update(*this);
     }
 }
@@ -97,8 +97,6 @@ void Grid::TriggerPathFind(int x, int y) {
         starChaser->currentPath = AStarSearch(*this, starChaser->position, target);
         starChaser->needsPathUpdate = false; // Path is now updated
     }
-
-    
 }
 
 bool Grid::IsCellBlocked(Vector2 position) const {
@@ -162,19 +160,14 @@ void Grid::HandleInput() {
         case ToggleMode:
             currentMode = PathFindMode;
             if (starChaser != nullptr) {
-                starChaser->needsPathUpdate = true; 
+                starChaser->needsPathUpdate = true; // Trigger path recalculation
             }
             break;
         case PathFindMode:
             currentMode = ToggleMode;
-            if (starChaser != nullptr) {
-                starChaser->needsPathUpdate = true; // Trigger path recalculation
-            }
             break;
         }
-        if (starChaser != nullptr) {
-            starChaser->needsPathUpdate = true; // Trigger path recalculation
-        }
+        
     }
 }
 
