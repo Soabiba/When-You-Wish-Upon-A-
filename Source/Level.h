@@ -72,8 +72,6 @@ public:
     enum Mode {
         ToggleMode,
         PathFindMode,
-        MoveEntityMode,
-        RemoveEntityMode
     };
 
     void Initialize();

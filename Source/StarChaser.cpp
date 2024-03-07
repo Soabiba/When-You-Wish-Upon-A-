@@ -66,6 +66,7 @@ void StarChaser::Update(Grid& grid) {
         if (Vector2Equals(position, grid.GetSpaceshipPosition(), 0.001f)) {
             // Logic to replenish stamina
             Rest();
+            needsPathUpdate = true;
         }
         else {
             // If not already at the spaceship, continue moving towards it

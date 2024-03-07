@@ -14,11 +14,28 @@ void Grid::Initialize() {
 }
 
 void Grid::Update() {
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        Vector2 mousePos = GetMousePosition();
-        int gridX = static_cast<int>(mousePos.x / Grid::cellSize);
-        int gridY = static_cast<int>(mousePos.y / Grid::cellSize);
-        ToggleCell(gridX, gridY); // Toggle cell state on click
+    if (starChaser != nullptr && starChaser->needsPathUpdate) {
+        Vector2 target = starChaser ? starChaser->position : Vector2{ 0, 0 };
+        // Determine the target based on the StarChaser's current state
+        switch (starChaser->state) {
+        case SearchingForStar:
+            target = GetFallenStarPosition();
+            break;
+        case CarryingStar:
+            target = GetTradingPostPosition();
+            break;
+        case Resting:
+            target = GetSpaceshipPosition();
+            break;
+            // Handle other states as necessary
+        }
+        starChaser->currentPath = AStarSearch(*this, starChaser->position, target); // Recalculate path
+        starChaser->needsPathUpdate = false;
+    }
+
+    // Ensure the StarChaser updates based on the recalculated path or its current behavior
+    if (starChaser != nullptr) {
+        starChaser->Update(*this);
     }
 }
 
@@ -71,10 +88,6 @@ void Grid::ToggleCell(int x, int y) {
     if (currentMode == ToggleMode && !IsCellOccupied(position)) {
         cells[x][y].blocked = !cells[x][y].blocked;
     }
-
-    if (starChaser != nullptr) {
-        starChaser->needsPathUpdate = true;
-    }
 }
 
 void Grid::TriggerPathFind(int x, int y) {
@@ -97,30 +110,29 @@ bool Grid::IsCellBlocked(Vector2 position) const {
 }
 
 void Grid::HandleInput() {
-    // Right mouse button to switch modes
-    if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
-        if (starChaser != nullptr) {
-            starChaser->needsPathUpdate = true;
-        }
-        SwitchMode();
-
-    }
-
+    // Handle cell toggling with the left mouse button
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         Vector2 mousePosition = GetMousePosition();
         int gridX = static_cast<int>(mousePosition.x) / cellSize;
         int gridY = static_cast<int>(mousePosition.y) / cellSize;
 
         if (gridX >= 0 && gridX < gridSize && gridY >= 0 && gridY < gridSize) {
-            // Toggle the cell state
-            cells[gridX][gridY].blocked = !cells[gridX][gridY].blocked;
+            ToggleCell(gridX, gridY);
+        }
+    }
 
-            // If we have a star chaser and a fallen star on the grid, recalculate the path
-            if (starChaser != nullptr && fallenStar != nullptr) {
-                // Recalculate path from star chaser's current position to the fallen star's position
-                starChaser->currentPath = AStarSearch(*this, starChaser->position, fallenStar->position);
-                starChaser->needsPathUpdate = false;
-            }
+    // Switch modes with the right mouse button
+    if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
+        switch (currentMode) {
+        case ToggleMode:
+            currentMode = PathFindMode;
+            break;
+        case PathFindMode:
+            currentMode = ToggleMode;
+            break;
+        }
+        if (starChaser != nullptr) {
+            starChaser->needsPathUpdate = true; // Trigger path recalculation
         }
     }
 }

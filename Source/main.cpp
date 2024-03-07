@@ -9,7 +9,6 @@ int main() {
     while (!WindowShouldClose()) {
         grid.HandleInput();
         grid.Update();
-        grid.starChaser->Update(grid);
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
