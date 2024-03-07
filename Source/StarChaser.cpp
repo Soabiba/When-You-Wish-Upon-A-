@@ -17,8 +17,10 @@ void StarChaser::Update(Grid& grid) {
             target = grid.GetSpaceshipPosition();
             break;
         }
-        currentPath = AStarSearch(grid, position, target);
-        needsPathUpdate = false;
+        if (state != Resting) {
+            currentPath = AStarSearch(grid, position, target);
+            needsPathUpdate = false;
+        }
     }
 
 
@@ -66,7 +68,7 @@ void StarChaser::Update(Grid& grid) {
         if (Vector2Equals(position, grid.GetSpaceshipPosition(), 0.001f)) {
             // Logic to replenish stamina
             Rest();
-            needsPathUpdate = true;
+
         }
         else {
             // If not already at the spaceship, continue moving towards it
@@ -129,6 +131,7 @@ void StarChaser::Rest() {
     if (stamina >= 10.0f) {
         stamina = 10.0f;
         state = SearchingForStar; // Return to searching after resting
+        needsPathUpdate = true;
     }
 }
 

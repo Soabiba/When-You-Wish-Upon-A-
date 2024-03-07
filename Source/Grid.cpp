@@ -27,7 +27,6 @@ void Grid::Update() {
         case Resting:
             target = GetSpaceshipPosition();
             break;
-            // Handle other states as necessary
         }
         starChaser->currentPath = AStarSearch(*this, starChaser->position, target); // Recalculate path
         starChaser->needsPathUpdate = false;
@@ -126,9 +125,15 @@ void Grid::HandleInput() {
         switch (currentMode) {
         case ToggleMode:
             currentMode = PathFindMode;
+            if (starChaser != nullptr) {
+                starChaser->needsPathUpdate = true; 
+            }
             break;
         case PathFindMode:
             currentMode = ToggleMode;
+            if (starChaser != nullptr) {
+                starChaser->needsPathUpdate = true; // Trigger path recalculation
+            }
             break;
         }
         if (starChaser != nullptr) {
